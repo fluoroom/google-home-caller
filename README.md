@@ -5,8 +5,9 @@ This is a personal project to trigger Google Home automations from an HTTP reque
 ## What it does
 
 - Runs a headless Chrome browser (with Selenium) to log into [home.google.com](https://home.google.com) and keeps the page open and waiting.
-- Clicks on a named automation (routine) when you send a POST request to the HTTP server
-- Useful for triggering Google Home routines from scripts, cron jobs, or other systems that can't talk to Google Home directly
+- Clicks on a named automation (routine) when you send a POST request to the HTTP server.
+- Useful for triggering Google Home routines from scripts, cron jobs, or other systems that can't talk to Google Home directly.
+- Daemonizable: works well as a systemd service.
 
 ## How to use
 

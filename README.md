@@ -1,11 +1,11 @@
 # google-home-caller
 
-This is a personal project to trigger Google Home automations from the command line or other scripts.
+This is a personal project to trigger Google Home automations from an HTTP request, command line or other scripts.
 
 ## What it does
 
-- Runs a headless Chrome browser (with Selenium) to log into [home.google.com](https://home.google.com)
-- Clicks on a named automation (routine) when you send a POST request to a local HTTP server
+- Runs a headless Chrome browser (with Selenium) to log into [home.google.com](https://home.google.com) and keeps the page open and waiting.
+- Clicks on a named automation (routine) when you send a POST request to the HTTP server
 - Useful for triggering Google Home routines from scripts, cron jobs, or other systems that can't talk to Google Home directly
 
 ## How to use

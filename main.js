@@ -95,17 +95,56 @@ async function setupBrowser() {
     .addArguments('--disable-blink-features=AutomationControlled')
     .addArguments('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.91 Safari/537.36')
     .excludeSwitches('enable-automation')
-    .addArguments('--enable-unsafe-swiftshader', '--no-sandbox', '--disable-dev-shm-usage', '--disable-extensions', '--disable-background-networking', '--disable-sync', '--metrics-recording-only', '--disable-default-apps', '--mute-audio', '--disable-translate', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--disable-features=TranslateUI,BlinkGenPropertyTrees', '--blink-settings=imagesEnabled=false', '--window-size=800,600');
+    .addArguments(
+      '--enable-unsafe-swiftshader',
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-extensions',
+      '--disable-background-networking',
+      '--disable-sync',
+      '--metrics-recording-only',
+      '--disable-default-apps',
+      '--mute-audio',
+      '--disable-translate',
+      '--disable-background-timer-throttling',
+      '--disable-renderer-backgrounding',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+      '--blink-settings=imagesEnabled=false',
+      '--window-size=800,600'
+    );
 
-  const driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+  // If CHROMEDRIVER_PATH is set (local), prepend its directory to PATH so webdriver picks it first
+  const chromeDriverPath = process.env.CHROMEDRIVER_PATH;
+  if (chromeDriverPath) {
+    const dir = path.dirname(chromeDriverPath);
+    process.env.PATH = `${dir}:${process.env.PATH}`;
+    log('Preferring local chromedriver from', dir);
+  }
+
+  const driver = await new Builder()
+    .forBrowser('chrome')
+    .setChromeOptions(options)
+    .build();
+
   try {
-    await driver.get('https://home.google.com/u/0/');
-    await driver.wait(until.elementLocated(By.css('body')), 7000);
+    await driver.get('https://home.google.com/home/1-34ee72be390388c0c132bc4a4d8122bc6ba034d52e99b7f53c802b27efea3d6c/automations');
+    await driver.wait(
+      until.elementLocated(
+        By.xpath(`//div[contains(@class, 'automation-name') and normalize-space(text())='baño ext off']`)
+      ),
+      7000
+    );
   } catch {
-    log("Login required, starting auth...");
+    log('Login required, starting auth...');
     await performGoogleLogin(driver);
-    await driver.get('https://home.google.com/u/0/');
-    await driver.wait(until.elementLocated(By.css('body')), 7000);
+    await driver.get('https://home.google.com/home/1-34ee72be390388c0c132bc4a4d8122bc6ba034d52e99b7f53c802b27efea3d6c/automations');
+    await driver.wait(
+      until.elementLocated(
+        By.xpath(`//div[contains(@class, 'automation-name') and normalize-space(text())='baño ext off']`)
+      ),
+      7000
+    );
   }
   return driver;
 }

@@ -89,7 +89,14 @@ async function performGoogleLogin(driver) {
 }
 
 async function setupBrowser() {
-  const options = new chrome.Options()
+  const options = new chrome.Options();
+
+  // Use CHROME_BIN env var if set (e.g. /usr/bin/chromium in Docker)
+  if (process.env.CHROME_BIN) {
+    options.setChromeBinaryPath(process.env.CHROME_BIN);
+  }
+
+  options
     .addArguments(`--user-data-dir=${path.resolve(__dirname, 'profile')}`)
     .addArguments('--profile-directory=Default')
     .addArguments('--disable-blink-features=AutomationControlled')

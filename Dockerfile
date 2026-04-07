@@ -1,56 +1,31 @@
-FROM node:25-bullseye
+FROM node:22-bookworm-slim
 
-# Install Chrome, Xvfb, and other dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    ca-certificates \
+# Install Chromium, chromedriver, Xvfb and minimal deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    chromium-driver \
     xvfb \
     fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libatspi2.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libnspr4 \
-    libnss3 \
-    libwayland-client0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxkbcommon0 \
-    libxrandr2 \
-    xdg-utils \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Point selenium at the system Chromium and chromedriver
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
+ENV CHROMEDRIVER_SKIP_DOWNLOAD=true
+
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install Node.js dependencies
-RUN npm install
-
-# Copy application files
 COPY . .
+RUN chmod +x ghome-call.sh && mkdir -p logs profile
 
-# Make the shell script executable
-RUN chmod +x ghome-call.sh
+# Run as non-root
+RUN groupadd -r app && useradd -r -g app -d /app app \
+    && chown -R app:app /app
+USER app
 
-# Create necessary directories
-RUN mkdir -p logs profile
-
-# Expose the HTTP server port
 EXPOSE 8602
 
-# Run the application using the entry point script
 CMD ["./ghome-call.sh"]

@@ -53,7 +53,7 @@ async function performGoogleLogin(driver) {
 
   log("Starting Google login...");
   await driver.get('https://home.google.com/login');
-  await setTimeout(3000);
+  await setTimeout(5000);
 
   try {
     const emailInput = await driver.wait(until.elementLocated(By.css('input[type="email"]')), timeoutTime);
@@ -183,16 +183,24 @@ async function clickAutomation(driver, name) {
       let body = '';
       req.on('data', chunk => body += chunk.toString());
       req.on('end', async () => {
-        const command = JSON.parse(body).command?.trim();
-        if (!command) {
-          res.writeHead(400);
-          return res.end('Missing "command" field.');
-        }
+        try {
+          const command = JSON.parse(body).command?.trim();
+          if (!command) {
+            res.writeHead(400);
+            return res.end('Missing "command" field.');
+          }
 
-        log(`Received command: ${command}`);
-        const success = await clickAutomation(driver, command);
-        res.writeHead(success ? 200 : 500);
-        res.end(success ? 'Clicked' : 'Failed to click');
+          log(`Received command: ${command}`);
+          const success = await clickAutomation(driver, command);
+          res.writeHead(success ? 200 : 500);
+          res.end(success ? 'Clicked' : 'Failed to click');
+        } catch (err) {
+          log(`Request error: ${err.message}`);
+          if (!res.headersSent) {
+            res.writeHead(400);
+            res.end(`Bad request: ${err.message}`);
+          }
+        }
       });
     } else {
       res.writeHead(404);
@@ -202,6 +210,14 @@ async function clickAutomation(driver, name) {
 
   server.listen(8602, () => {
     log("Daemon ready at http://localhost:8602/command");
+  });
+
+  process.on('uncaughtException', (err) => {
+    log(`Uncaught exception: ${err.message}`);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    log(`Unhandled rejection: ${reason}`);
   });
 
   process.on('SIGINT', async () => {

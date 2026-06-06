@@ -1,5 +1,4 @@
 const { Builder, By, until } = require('selenium-webdriver');
-require('chromedriver');
 require('dotenv').config();
 
 const chrome = require('selenium-webdriver/chrome');
@@ -113,14 +112,6 @@ async function setupBrowser() {
       '--blink-settings=imagesEnabled=false',
       '--window-size=800,600'
     );
-
-  // If CHROMEDRIVER_PATH is set (local), prepend its directory to PATH so webdriver picks it first
-  const chromeDriverPath = process.env.CHROMEDRIVER_PATH;
-  if (chromeDriverPath) {
-    const dir = path.dirname(chromeDriverPath);
-    process.env.PATH = `${dir}:${process.env.PATH}`;
-    log('Preferring local chromedriver from', dir);
-  }
 
   const driver = await new Builder()
     .forBrowser('chrome')

@@ -15,9 +15,13 @@ services:
     volumes:
       - ./profile:/app/profile
       - ./logs:/app/logs
+      - selenium-cache:/root/.cache/selenium
     restart: unless-stopped
     # Run with additional capabilities for Chrome
     cap_add:
       - SYS_ADMIN
     # Optional: Use shm_size to avoid Chrome crashes
     shm_size: 2gb
+
+volumes:
+  selenium-cache:
